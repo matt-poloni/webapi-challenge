@@ -34,17 +34,27 @@ router.get('/:id', (req, res) => {
       ? res.status(404).json({ error: 'The project with the specified ID does not exist.' })
       : res.status(200).json(project);
   })
-    .catch(err => res.status(500).json({ error: 'The projects at the specified ID could not be retrieved.' }))
+    .catch(err => res.status(500).json({ error: 'The project at the specified ID could not be retrieved.' }))
 })
 
 router.post('/', hasName, hasDescription, (req, res) => {
   const newProject = req.body;
   db.insert(newProject)
     .then(insterted => res.status(201).json(insterted))
-    .catch(err => res.status(500).json({ error: 'The projects data could not be retrieved.' }))
+    .catch(err => res.status(500).json({ error: 'There was an error while creating the new project.' }))
 })
 
-router.put('/', (req, res) => {})
+router.put('/:id', (req, res) => {
+  const changes = req.body;
+  const projectID = req.params.id;
+  db.update(projectID, changes)
+    .then(updated => {
+      !updated
+        ? res.status(400).json({ error: 'The project with the specified ID does not exist.' })
+        : res.status(202).json(updated);
+    })
+    .catch(err => res.status(500).json({ error: 'There was an error while updating the specified project.' }))
+})
 
 router.delete('/', (req, res) => {})
 

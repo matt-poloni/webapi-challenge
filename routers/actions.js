@@ -14,6 +14,7 @@ const hasProjectID = (req, res, next) => {
 }
 
 const validProjectID = async (req, res, next) => {
+  if(!req.body.project_id) { return next() }
   const invalid = await dbProjects.get(req.body.project_id);
   !invalid
   ? res.status(400).json({ error: 'The specified project id does not exist. Please provide a valid project id.' })
@@ -54,17 +55,27 @@ router.get('/:id', (req, res) => {
       ? res.status(404).json({ error: 'The action with the specified ID does not exist.' })
       : res.status(200).json(action);
   })
-    .catch(err => res.status(500).json({ error: 'The actions at the specified ID could not be retrieved.' }))
+    .catch(err => res.status(500).json({ error: 'The action at the specified ID could not be retrieved.' }))
 })
 
 router.post('/', hasProjectID, validProjectID, hasDescription, checkDescLength, hasNotes, (req, res) => {
   const newAction = req.body;
   db.insert(newAction)
     .then(insterted => res.status(201).json(insterted))
-    .catch(err => res.status(500).json({ error: 'The actions data could not be retrieved.' }))
+    .catch(err => res.status(500).json({ error: 'There was an error while creating the new action.' }))
 })
 
-router.put('/', (res, req) => {})
+router.put('/:id', validProjectID, (req, res) => {
+  const changes = req.body;
+  const actionID = req.params.id;
+  db.update(actionID, changes)
+    .then(updated => {
+      !updated
+        ? res.status(400).json({ error: 'The action with the specified ID does not exist.' })
+        : res.status(202).json(updated);
+    })
+    .catch(err => res.status(500).json({ error: 'There was an error while updating the specified action.' }))
+})
 
 router.delete('/', (res, req) => {})
 
