@@ -6,39 +6,6 @@ const router = express.Router();
 
 // MIDDLEWARE
 
-const hasName = (req, res, next) => {
-  !req.body.name
-    ? res.status(400).json({ error: 'Please provide a name for the project.' })
-    : next();
-}
-
-const checkName = (req, res, next) => {
-  if(!req.body.name) { return next() }
-  typeof req.body.name !== 'string'
-    ? res.status(400).json({ error: 'The name value must be a string'})
-    : next();
-}
-
-const hasDescription = (req, res, next) => {
-  !req.body.description
-    ? res.status(400).json({ error: 'Please provide a description for the project.' })
-    : next();
-}
-
-const checkDescription = (req, res, next) => {
-  if(!req.body.description) { return next() }
-  typeof req.body.description !== 'string'
-    ? res.status(400).json({ error: 'The description value must be a string'})
-    : next();
-}
-
-const checkCompleted = (req, res, next) => {
-  if(!req.body.completed) { return next() }
-  typeof req.body.completed !== 'boolean'
-    ? res.status(400).json({ error: 'The completed value must be a boolean'})
-    : next();
-}
-
 const stripReqBody = (req, res, next) => {
   const newReqBody = {};
   const allowed = ['name', 'description', 'completed'];
@@ -49,7 +16,40 @@ const stripReqBody = (req, res, next) => {
   });
   req.body = newReqBody;
   next();
-}
+} // Strips all properties that won't be sent to DB
+
+const hasName = (req, res, next) => {
+  !req.body.name
+    ? res.status(400).json({ error: 'Please provide a name for the project.' })
+    : next();
+} // Checks if name exists
+
+const checkName = (req, res, next) => {
+  if(!req.body.name) { return next() }
+  typeof req.body.name !== 'string'
+    ? res.status(400).json({ error: 'The name value must be a string'})
+    : next();
+} // Checks if name is a string
+
+const hasDescription = (req, res, next) => {
+  !req.body.description
+    ? res.status(400).json({ error: 'Please provide a description for the project.' })
+    : next();
+} // Checks if description exists
+
+const checkDescription = (req, res, next) => {
+  if(!req.body.description) { return next() }
+  typeof req.body.description !== 'string'
+    ? res.status(400).json({ error: 'The description value must be a string'})
+    : next();
+} // Checks if description is a string
+
+const checkCompleted = (req, res, next) => {
+  if(!req.body.completed) { return next() }
+  typeof req.body.completed !== 'boolean'
+    ? res.status(400).json({ error: 'The completed value must be a boolean'})
+    : next();
+} // Checks if completed is a boolean
 
 // ENDPOINTS
 

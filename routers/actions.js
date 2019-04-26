@@ -7,60 +7,6 @@ const router = express.Router();
 
 // MIDDLEWARE
 
-const hasProjectID = (req, res, next) => {
-  !req.body.project_id
-    ? res.status(400).json({ error: 'Please provide a project id for the action.' })
-    : next();
-}
-
-const validProjectID = async (req, res, next) => {
-  if(!req.body.project_id) { return next() }
-  const invalid = await dbProjects.get(req.body.project_id);
-  !invalid
-  ? res.status(400).json({ error: 'The specified project id does not exist. Please provide a valid project id.' })
-  : next();
-}
-
-const hasDescription = (req, res, next) => {
-  !req.body.description
-    ? res.status(400).json({ error: 'Please provide a description for the action.' })
-    : next();
-};
-
-const checkDescription = (req, res, next) => {
-  if(!req.body.description) { return next() }
-  typeof req.body.description !== 'string'
-    ? res.status(400).json({ error: 'The description value must be a string'})
-    : next();
-}
-
-const checkDescLength = (req, res, next) => {
-  if(!req.body.description) { return next() }
-  req.body.description.length > 128
-    ? res.status(400).json({ error: 'Please provide a description that does not exceed a length of 128 characters.' })
-    : next();
-}
-
-const hasNotes = (req, res, next) => {
-  !req.body.notes
-    ? res.status(400).json({ error: 'Please provide notes for the action.' })
-    : next();
-};
-
-const checkNotes = (req, res, next) => {
-  if(!req.body.notes) { return next() }
-  typeof req.body.notes !== 'string'
-    ? res.status(400).json({ error: 'The notes value must be a string'})
-    : next();
-}
-
-const checkCompleted = (req, res, next) => {
-  if(!req.body.completed) { return next() }
-  typeof req.body.completed !== 'boolean'
-    ? res.status(400).json({ error: 'The completed value must be a boolean'})
-    : next();
-}
-
 const stripReqBody = (req, res, next) => {
   const newReqBody = {};
   const allowed = ['project_id', 'description', 'notes', 'completed'];
@@ -71,7 +17,61 @@ const stripReqBody = (req, res, next) => {
   });
   req.body = newReqBody;
   next();
-}
+} // Strips all properties that won't be sent to DB
+
+const hasProjectID = (req, res, next) => {
+  !req.body.project_id
+    ? res.status(400).json({ error: 'Please provide a project id for the action.' })
+    : next();
+} // Checks if project_id exists
+
+const validProjectID = async (req, res, next) => {
+  if(!req.body.project_id) { return next() }
+  const invalid = await dbProjects.get(req.body.project_id);
+  !invalid
+  ? res.status(400).json({ error: 'The specified project id does not exist. Please provide a valid project id.' })
+  : next();
+} // Checks if project_id is valid (in DB)
+
+const hasDescription = (req, res, next) => {
+  !req.body.description
+    ? res.status(400).json({ error: 'Please provide a description for the action.' })
+    : next();
+} // Checks if description exists
+
+const checkDescription = (req, res, next) => {
+  if(!req.body.description) { return next() }
+  typeof req.body.description !== 'string'
+    ? res.status(400).json({ error: 'The description value must be a string'})
+    : next();
+} // Checks if description is a string
+
+const checkDescLength = (req, res, next) => {
+  if(!req.body.description) { return next() }
+  req.body.description.length > 128
+    ? res.status(400).json({ error: 'Please provide a description that does not exceed a length of 128 characters.' })
+    : next();
+} // Checks if description is too long
+
+const hasNotes = (req, res, next) => {
+  !req.body.notes
+    ? res.status(400).json({ error: 'Please provide notes for the action.' })
+    : next();
+} // Checks if notes exists
+
+const checkNotes = (req, res, next) => {
+  if(!req.body.notes) { return next() }
+  typeof req.body.notes !== 'string'
+    ? res.status(400).json({ error: 'The notes value must be a string'})
+    : next();
+} // Checks if notes is a string
+
+const checkCompleted = (req, res, next) => {
+  if(!req.body.completed) { return next() }
+  typeof req.body.completed !== 'boolean'
+    ? res.status(400).json({ error: 'The completed value must be a boolean'})
+    : next();
+} // Checks if completed is a boolean
 
 // ENDPOINTS
 
