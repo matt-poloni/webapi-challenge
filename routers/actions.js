@@ -28,7 +28,7 @@ const hasDescription = (req, res, next) => {
 };
 
 const checkDescription = (req, res, next) => {
-  if(req.body.description) { return next() }
+  if(!req.body.description) { return next() }
   typeof req.body.description !== 'string'
     ? res.status(400).json({ error: 'The description value must be a string'})
     : next();
@@ -48,21 +48,28 @@ const hasNotes = (req, res, next) => {
 };
 
 const checkNotes = (req, res, next) => {
-  if(req.body.notes) { return next() }
+  if(!req.body.notes) { return next() }
   typeof req.body.notes !== 'string'
     ? res.status(400).json({ error: 'The notes value must be a string'})
     : next();
 }
 
 const checkCompleted = (req, res, next) => {
-  if(req.body.completed) { return next() }
+  if(!req.body.completed) { return next() }
   typeof req.body.completed !== 'boolean'
     ? res.status(400).json({ error: 'The completed value must be a boolean'})
     : next();
 }
 
-const stripID = (req, res, next) => {
-  delete req.body.id;
+const stripReqBody = (req, res, next) => {
+  const newReqBody = {};
+  const allowed = ['project_id', 'description', 'notes', 'completed'];
+  Object.keys(req.body).forEach(key => {
+    if(allowed.includes(key)) {
+      newReqBody[key] = req.body[key]
+    }
+  });
+  req.body = newReqBody;
   next();
 }
 
@@ -74,7 +81,7 @@ router.get('/', (req, res) => {
     .catch(err => res.status(500).json({ error: 'The actions data could not be retrieved.' }))
 })
 
-router.post('/', stripID, hasProjectID, validProjectID, hasDescription, checkDescription, checkDescLength, hasNotes, checkNotes, checkCompleted, (req, res) => {
+router.post('/', stripReqBody, hasProjectID, validProjectID, hasDescription, checkDescription, checkDescLength, hasNotes, checkNotes, checkCompleted, (req, res) => {
   const newAction = req.body;
   db.insert(newAction)
     .then(insterted => res.status(201).json(insterted))
@@ -92,7 +99,7 @@ router.get('/:id', (req, res) => {
     .catch(err => res.status(500).json({ error: 'The action at the specified ID could not be retrieved.' }))
 })
 
-router.put('/:id', stripID, validProjectID, checkDescription, checkDescLength, checkNotes, checkCompleted, (req, res) => {
+router.put('/:id', stripReqBody, validProjectID, checkDescription, checkDescLength, checkNotes, checkCompleted, (req, res) => {
   const changes = req.body;
   const actionID = req.params.id;
   db.update(actionID, changes)

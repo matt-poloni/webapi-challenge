@@ -13,7 +13,7 @@ const hasName = (req, res, next) => {
 }
 
 const checkName = (req, res, next) => {
-  if(req.body.name) { return next() }
+  if(!req.body.name) { return next() }
   typeof req.body.name !== 'string'
     ? res.status(400).json({ error: 'The name value must be a string'})
     : next();
@@ -26,21 +26,28 @@ const hasDescription = (req, res, next) => {
 }
 
 const checkDescription = (req, res, next) => {
-  if(req.body.description) { return next() }
+  if(!req.body.description) { return next() }
   typeof req.body.description !== 'string'
     ? res.status(400).json({ error: 'The description value must be a string'})
     : next();
 }
 
 const checkCompleted = (req, res, next) => {
-  if(req.body.completed) { return next() }
+  if(!req.body.completed) { return next() }
   typeof req.body.completed !== 'boolean'
     ? res.status(400).json({ error: 'The completed value must be a boolean'})
     : next();
 }
 
-const stripID = (req, res, next) => {
-  delete req.body.id;
+const stripReqBody = (req, res, next) => {
+  const newReqBody = {};
+  const allowed = ['name', 'description', 'completed'];
+  Object.keys(req.body).forEach(key => {
+    if(allowed.includes(key)) {
+      newReqBody[key] = req.body[key]
+    }
+  });
+  req.body = newReqBody;
   next();
 }
 
@@ -52,7 +59,7 @@ router.get('/', (req, res) => {
     .catch(err => res.status(500).json({ error: 'The projects data could not be retrieved.' }))
 })
 
-router.post('/', stripID, hasName, checkName, hasDescription, checkDescription, checkCompleted, (req, res) => {
+router.post('/', stripReqBody, hasName, checkName, hasDescription, checkDescription, checkCompleted, (req, res) => {
   const newProject = req.body;
   db.insert(newProject)
     .then(insterted => res.status(201).json(insterted))
@@ -70,7 +77,7 @@ router.get('/:id', (req, res) => {
       .catch(err => res.status(500).json({ error: 'The project at the specified ID could not be retrieved.' }))
 })
 
-router.put('/:id', stripID, checkName, checkDescription, checkCompleted, (req, res) => {
+router.put('/:id', stripReqBody, checkName, checkDescription, checkCompleted, (req, res) => {
   const changes = req.body;
   const projectID = req.params.id;
   db.update(projectID, changes)
