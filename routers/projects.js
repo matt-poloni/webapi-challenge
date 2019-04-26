@@ -12,9 +12,30 @@ const hasName = (req, res, next) => {
     : next();
 }
 
+const checkName = (req, res, next) => {
+  if(req.body.name) { return next() }
+  typeof req.body.name !== 'string'
+    ? res.status(400).json({ error: 'The name value must be a string'})
+    : next();
+}
+
 const hasDescription = (req, res, next) => {
   !req.body.description
     ? res.status(400).json({ error: 'Please provide a description for the project.' })
+    : next();
+}
+
+const checkDescription = (req, res, next) => {
+  if(req.body.description) { return next() }
+  typeof req.body.description !== 'string'
+    ? res.status(400).json({ error: 'The description value must be a string'})
+    : next();
+}
+
+const checkCompleted = (req, res, next) => {
+  if(req.body.completed) { return next() }
+  typeof req.body.completed !== 'boolean'
+    ? res.status(400).json({ error: 'The completed value must be a boolean'})
     : next();
 }
 
@@ -31,7 +52,7 @@ router.get('/', (req, res) => {
     .catch(err => res.status(500).json({ error: 'The projects data could not be retrieved.' }))
 })
 
-router.post('/', stripID, hasName, hasDescription, (req, res) => {
+router.post('/', stripID, hasName, checkName, hasDescription, checkDescription, checkCompleted, (req, res) => {
   const newProject = req.body;
   db.insert(newProject)
     .then(insterted => res.status(201).json(insterted))
@@ -49,7 +70,7 @@ router.get('/:id', (req, res) => {
       .catch(err => res.status(500).json({ error: 'The project at the specified ID could not be retrieved.' }))
 })
 
-router.put('/:id', stripID, (req, res) => {
+router.put('/:id', stripID, checkName, checkDescription, checkCompleted, (req, res) => {
   const changes = req.body;
   const projectID = req.params.id;
   db.update(projectID, changes)
