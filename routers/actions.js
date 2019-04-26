@@ -28,6 +28,7 @@ const hasDescription = (req, res, next) => {
 };
 
 const checkDescLength = (req, res, next) => {
+  if(!req.body.description) { return next() }
   req.body.description.length > 128
     ? res.status(400).json({ error: 'Please provide a description that does not exceed a length of 128 characters.' })
     : next();
@@ -65,7 +66,7 @@ router.post('/', hasProjectID, validProjectID, hasDescription, checkDescLength, 
     .catch(err => res.status(500).json({ error: 'There was an error while creating the new action.' }))
 })
 
-router.put('/:id', validProjectID, (req, res) => {
+router.put('/:id', validProjectID, checkDescLength, (req, res) => {
   const changes = req.body;
   const actionID = req.params.id;
   db.update(actionID, changes)
