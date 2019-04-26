@@ -19,6 +19,7 @@
   },
   "homepage": "https://github.com/LambdaSchool/Sprint-Challenge-Node-Express#readme",
   "dependencies": {
+    "express": "^4.16.4",
     "helmet": "^3.16.0",
     "knex": "^0.16.5",
     "sqlite3": "^4.0.6"
