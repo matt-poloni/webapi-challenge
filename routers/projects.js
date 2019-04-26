@@ -18,6 +18,11 @@ const hasDescription = (req, res, next) => {
     : next();
 }
 
+const stripID = (req, res, next) => {
+  delete req.body.id;
+  next();
+}
+
 // ENDPOINTS
 
 router.get('/', (req, res) => {
@@ -26,7 +31,7 @@ router.get('/', (req, res) => {
     .catch(err => res.status(500).json({ error: 'The projects data could not be retrieved.' }))
 })
 
-router.post('/', hasName, hasDescription, (req, res) => {
+router.post('/', stripID, hasName, hasDescription, (req, res) => {
   const newProject = req.body;
   db.insert(newProject)
     .then(insterted => res.status(201).json(insterted))
@@ -44,7 +49,7 @@ router.get('/:id', (req, res) => {
       .catch(err => res.status(500).json({ error: 'The project at the specified ID could not be retrieved.' }))
 })
 
-router.put('/:id', (req, res) => {
+router.put('/:id', stripID, (req, res) => {
   const changes = req.body;
   const projectID = req.params.id;
   db.update(projectID, changes)

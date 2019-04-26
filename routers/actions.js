@@ -40,6 +40,11 @@ const hasNotes = (req, res, next) => {
     : next();
 };
 
+const stripID = (req, res, next) => {
+  delete req.body.id;
+  next();
+}
+
 // ENDPOINTS
 
 router.get('/', (req, res) => {
@@ -48,7 +53,7 @@ router.get('/', (req, res) => {
     .catch(err => res.status(500).json({ error: 'The actions data could not be retrieved.' }))
 })
 
-router.post('/', hasProjectID, validProjectID, hasDescription, checkDescLength, hasNotes, (req, res) => {
+router.post('/', stripID, hasProjectID, validProjectID, hasDescription, checkDescLength, hasNotes, (req, res) => {
   const newAction = req.body;
   db.insert(newAction)
     .then(insterted => res.status(201).json(insterted))
@@ -66,7 +71,7 @@ router.get('/:id', (req, res) => {
     .catch(err => res.status(500).json({ error: 'The action at the specified ID could not be retrieved.' }))
 })
 
-router.put('/:id', validProjectID, checkDescLength, (req, res) => {
+router.put('/:id', stripID, validProjectID, checkDescLength, (req, res) => {
   const changes = req.body;
   const actionID = req.params.id;
   db.update(actionID, changes)
