@@ -50,13 +50,22 @@ router.put('/:id', (req, res) => {
   db.update(projectID, changes)
     .then(updated => {
       !updated
-        ? res.status(400).json({ error: 'The project with the specified ID does not exist.' })
+        ? res.status(404).json({ error: 'The project with the specified ID does not exist.' })
         : res.status(202).json(updated);
     })
     .catch(err => res.status(500).json({ error: 'There was an error while updating the specified project.' }))
 })
 
-router.delete('/', (req, res) => {})
+router.delete('/:id', (req, res) => {
+  const projectID = req.params.id;
+  db.remove(projectID)
+    .then(async count => {
+      !count
+        ? res.status(404).json({ error: 'The project with the specified ID does not exist.' })
+        : res.status(204).end();
+    })
+    .catch(err => res.status(500).json({ error: 'The project could not be removed.' }));
+})
 
 
 module.exports = router;

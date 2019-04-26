@@ -72,12 +72,21 @@ router.put('/:id', validProjectID, checkDescLength, (req, res) => {
   db.update(actionID, changes)
     .then(updated => {
       !updated
-        ? res.status(400).json({ error: 'The action with the specified ID does not exist.' })
+        ? res.status(404).json({ error: 'The action with the specified ID does not exist.' })
         : res.status(202).json(updated);
     })
     .catch(err => res.status(500).json({ error: 'There was an error while updating the specified action.' }))
 })
 
-router.delete('/', (res, req) => {})
+router.delete('/:id', (req, res) => {
+  const actionID = req.params.id;
+  db.remove(actionID)
+    .then(async count => {
+      !count
+        ? res.status(404).json({ error: 'The action with the specified ID does not exist.' })
+        : res.status(204).end();
+    })
+    .catch(err => res.status(500).json({ error: 'The action could not be removed.' }));
+})
 
 module.exports = router;
