@@ -27,6 +27,13 @@ const hasDescription = (req, res, next) => {
     : next();
 };
 
+const checkDescription = (req, res, next) => {
+  if(req.body.description) { return next() }
+  typeof req.body.description !== 'string'
+    ? res.status(400).json({ error: 'The description value must be a string'})
+    : next();
+}
+
 const checkDescLength = (req, res, next) => {
   if(!req.body.description) { return next() }
   req.body.description.length > 128
@@ -39,6 +46,20 @@ const hasNotes = (req, res, next) => {
     ? res.status(400).json({ error: 'Please provide notes for the action.' })
     : next();
 };
+
+const checkNotes = (req, res, next) => {
+  if(req.body.notes) { return next() }
+  typeof req.body.notes !== 'string'
+    ? res.status(400).json({ error: 'The notes value must be a string'})
+    : next();
+}
+
+const checkCompleted = (req, res, next) => {
+  if(req.body.completed) { return next() }
+  typeof req.body.completed !== 'boolean'
+    ? res.status(400).json({ error: 'The completed value must be a boolean'})
+    : next();
+}
 
 const stripID = (req, res, next) => {
   delete req.body.id;
@@ -53,7 +74,7 @@ router.get('/', (req, res) => {
     .catch(err => res.status(500).json({ error: 'The actions data could not be retrieved.' }))
 })
 
-router.post('/', stripID, hasProjectID, validProjectID, hasDescription, checkDescLength, hasNotes, (req, res) => {
+router.post('/', stripID, hasProjectID, validProjectID, hasDescription, checkDescription, checkDescLength, hasNotes, checkNotes, checkCompleted, (req, res) => {
   const newAction = req.body;
   db.insert(newAction)
     .then(insterted => res.status(201).json(insterted))
@@ -71,7 +92,7 @@ router.get('/:id', (req, res) => {
     .catch(err => res.status(500).json({ error: 'The action at the specified ID could not be retrieved.' }))
 })
 
-router.put('/:id', stripID, validProjectID, checkDescLength, (req, res) => {
+router.put('/:id', stripID, validProjectID, checkDescription, checkDescLength, checkNotes, checkCompleted, (req, res) => {
   const changes = req.body;
   const actionID = req.params.id;
   db.update(actionID, changes)
