@@ -48,6 +48,13 @@ router.get('/', (req, res) => {
     .catch(err => res.status(500).json({ error: 'The actions data could not be retrieved.' }))
 })
 
+router.post('/', hasProjectID, validProjectID, hasDescription, checkDescLength, hasNotes, (req, res) => {
+  const newAction = req.body;
+  db.insert(newAction)
+    .then(insterted => res.status(201).json(insterted))
+    .catch(err => res.status(500).json({ error: 'There was an error while creating the new action.' }))
+})
+
 router.get('/:id', (req, res) => {
   const actionID = req.params.id;
   db.get(actionID)
@@ -57,13 +64,6 @@ router.get('/:id', (req, res) => {
       : res.status(200).json(action);
   })
     .catch(err => res.status(500).json({ error: 'The action at the specified ID could not be retrieved.' }))
-})
-
-router.post('/', hasProjectID, validProjectID, hasDescription, checkDescLength, hasNotes, (req, res) => {
-  const newAction = req.body;
-  db.insert(newAction)
-    .then(insterted => res.status(201).json(insterted))
-    .catch(err => res.status(500).json({ error: 'There was an error while creating the new action.' }))
 })
 
 router.put('/:id', validProjectID, checkDescLength, (req, res) => {
