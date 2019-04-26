@@ -81,11 +81,21 @@ router.get('/', (req, res) => {
     .catch(err => res.status(500).json({ error: 'The actions data could not be retrieved.' }))
 })
 
-router.post('/', stripReqBody, hasProjectID, validProjectID, hasDescription, checkDescription, checkDescLength, hasNotes, checkNotes, checkCompleted, (req, res) => {
-  const newAction = req.body;
-  db.insert(newAction)
-    .then(insterted => res.status(201).json(insterted))
-    .catch(err => res.status(500).json({ error: 'There was an error while creating the new action.' }))
+router.post('/',
+  stripReqBody,
+  hasProjectID,
+  validProjectID,
+  hasDescription,
+  checkDescription,
+  checkDescLength,
+  hasNotes,
+  checkNotes,
+  checkCompleted,
+  (req, res) => {
+    const newAction = req.body;
+    db.insert(newAction)
+      .then(insterted => res.status(201).json(insterted))
+      .catch(err => res.status(500).json({ error: 'There was an error while creating the new action.' }))
 })
 
 router.get('/:id', (req, res) => {
@@ -99,16 +109,23 @@ router.get('/:id', (req, res) => {
     .catch(err => res.status(500).json({ error: 'The action at the specified ID could not be retrieved.' }))
 })
 
-router.put('/:id', stripReqBody, validProjectID, checkDescription, checkDescLength, checkNotes, checkCompleted, (req, res) => {
-  const changes = req.body;
-  const actionID = req.params.id;
-  db.update(actionID, changes)
-    .then(updated => {
-      !updated
-        ? res.status(404).json({ error: 'The action with the specified ID does not exist.' })
-        : res.status(202).json(updated);
-    })
-    .catch(err => res.status(500).json({ error: 'There was an error while updating the specified action.' }))
+router.put('/:id',
+  stripReqBody,
+  validProjectID,
+  checkDescription,
+  checkDescLength,
+  checkNotes,
+  checkCompleted,
+  (req, res) => {
+    const changes = req.body;
+    const actionID = req.params.id;
+    db.update(actionID, changes)
+      .then(updated => {
+        !updated
+          ? res.status(404).json({ error: 'The action with the specified ID does not exist.' })
+          : res.status(202).json(updated);
+      })
+      .catch(err => res.status(500).json({ error: 'There was an error while updating the specified action.' }))
 })
 
 router.delete('/:id', (req, res) => {

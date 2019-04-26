@@ -59,11 +59,18 @@ router.get('/', (req, res) => {
     .catch(err => res.status(500).json({ error: 'The projects data could not be retrieved.' }))
 })
 
-router.post('/', stripReqBody, hasName, checkName, hasDescription, checkDescription, checkCompleted, (req, res) => {
-  const newProject = req.body;
-  db.insert(newProject)
-    .then(insterted => res.status(201).json(insterted))
-    .catch(err => res.status(500).json({ error: 'There was an error while creating the new project.' }))
+router.post('/',
+  stripReqBody,
+  hasName,
+  checkName,
+  hasDescription,
+  checkDescription,
+  checkCompleted,
+  (req, res) => {
+    const newProject = req.body;
+    db.insert(newProject)
+      .then(insterted => res.status(201).json(insterted))
+      .catch(err => res.status(500).json({ error: 'There was an error while creating the new project.' }))
 })
 
 router.get('/:id', (req, res) => {
@@ -77,16 +84,21 @@ router.get('/:id', (req, res) => {
       .catch(err => res.status(500).json({ error: 'The project at the specified ID could not be retrieved.' }))
 })
 
-router.put('/:id', stripReqBody, checkName, checkDescription, checkCompleted, (req, res) => {
-  const changes = req.body;
-  const projectID = req.params.id;
-  db.update(projectID, changes)
-    .then(updated => {
-      !updated
-        ? res.status(404).json({ error: 'The project with the specified ID does not exist.' })
-        : res.status(202).json(updated);
-    })
-    .catch(err => res.status(500).json({ error: 'There was an error while updating the specified project.' }))
+router.put('/:id',
+  stripReqBody,
+  checkName,
+  checkDescription,
+  checkCompleted,
+  (req, res) => {
+    const changes = req.body;
+    const projectID = req.params.id;
+    db.update(projectID, changes)
+      .then(updated => {
+        !updated
+          ? res.status(404).json({ error: 'The project with the specified ID does not exist.' })
+          : res.status(202).json(updated);
+      })
+      .catch(err => res.status(500).json({ error: 'There was an error while updating the specified project.' }))
 })
 
 router.delete('/:id', (req, res) => {
